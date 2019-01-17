@@ -43,17 +43,35 @@ class AudioConverterBot():
         start_message = "Hey there!\nI am AudioConverterBot and I can convert your audio in another file format. Just send it to me."
         self.bot.sendMessage(chat_id, start_message)
 
+    def handle_formats(self, chat_id):
+        """ handles /formats
+        sends list of all formats bot support
+        """
+
+        message_text = "*Supported formats:*\n"
+        for format in self.formats:
+            if format == "ogg":
+                message_text += "ogg (voice message)\n"
+            else:
+                message_text += format + "\n"
+        self.bot.sendMessage(chat_id, message_text, parse_mode = "Markdown")
+
     def handle_message(self, msg):
         """ handles incoming messages """
 
         _, _, chat_id = telepot.glance(msg)
 
-        if "text" in msg: # if message has text field
+        if "text" in msg:
+            # if message has text field
             if msg["text"] == "/start":
                 self.handle_start(chat_id)
-            elif msg["text"] in self.formats: # if message is a file extension
+            if msg["text"] == "/formats":
+                self.handle_formats(chat_id)
+            elif msg["text"] in self.formats:
+                # if message is a file extension
                 self.convert_audio(chat_id, msg["text"])
-        if "audio" in msg: # if message has audio field
+        if "audio" in msg:
+            # if message has audio field
             file_id = msg["audio"]["file_id"]
             self.handle_audio(chat_id, file_id)
 
